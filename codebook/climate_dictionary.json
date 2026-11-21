@@ -1,0 +1,46 @@
+{
+  "version": "0.1",
+  "description": "Transparent keyword baseline. Topic terms select climate-related passages; cue terms assign a rubric Label A code. Matching is case-insensitive on word boundaries.",
+  "topic_terms": [
+    "climate",
+    "greenhouse gas",
+    "ghg",
+    "emissions",
+    "carbon",
+    "co2",
+    "methane",
+    "net zero",
+    "net-zero",
+    "low-carbon",
+    "lower-carbon",
+    "decarbonization",
+    "energy transition",
+    "carbon capture",
+    "ccs",
+    "scope 1",
+    "scope 2",
+    "scope 3",
+    "flaring",
+    "renewable"
+  ],
+  "outcome_cues": [
+    "reduced",
+    "decreased",
+    "lowered",
+    "achieved",
+    "avoided"
+  ],
+  "target_cues": [
+    "target",
+    "goal",
+    "by 2025",
+    "by 2028",
+    "by 2030",
+    "by 2035",
+    "by 2040",
+    "by 2050",
+    "plan to",
+    "will reduce",
+    "invest"
+  ]
+}

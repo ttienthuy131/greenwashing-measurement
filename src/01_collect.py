@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Download and checksum the public EPA GHGRP pilot source files."""
+"""Download and checksum the public EPA GHGRP files and, optionally, report PDFs."""
 
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import os
@@ -12,7 +13,7 @@ import urllib.request
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 
 SOURCES = (
@@ -55,7 +56,13 @@ def validate_archive(path: Path, required_member: str | None) -> None:
             raise ValueError(f"Expected workbook member {required_member!r} in {path}")
 
 
-def download(url: str, destination: Path, required_member: str | None) -> None:
+def validate_pdf(path: Path) -> None:
+    with path.open("rb") as source:
+        if source.read(5) != b"%PDF-":
+            raise ValueError(f"Downloaded file is not a PDF: {path}")
+
+
+def download(url: str, destination: Path, validate: Callable[[Path], None]) -> None:
     request = urllib.request.Request(
         url,
         headers={"User-Agent": "greenwashing-measurement research project"},
@@ -79,7 +86,7 @@ def download(url: str, destination: Path, required_member: str | None) -> None:
 
         if temporary_path.stat().st_size == 0:
             raise OSError(f"Downloaded an empty file from {url}")
-        validate_archive(temporary_path, required_member)
+        validate(temporary_path)
         os.replace(temporary_path, destination)
     finally:
         if temporary_path is not None and temporary_path.exists():
@@ -113,11 +120,14 @@ def collect(output_dir: Path, refresh: bool) -> None:
         previous_entry = previous_manifest.get("files", {}).get(source["id"], {})
         downloaded_at = previous_entry.get("downloaded_at_utc")
 
+        def validate(path: Path, member: str | None = source["required_member"]) -> None:
+            validate_archive(path, member)
+
         if refresh or not destination.exists():
-            download(source["url"], destination, source["required_member"])
+            download(source["url"], destination, validate)
             downloaded_at = utc_now()
         else:
-            validate_archive(destination, source["required_member"])
+            validate(destination)
 
         entries[source["id"]] = {
             "url": source["url"],
@@ -128,17 +138,51 @@ def collect(output_dir: Path, refresh: bool) -> None:
             "sha256": sha256_file(destination),
         }
 
-    write_manifest(
-        manifest_path,
-        {
-            "reporting_year": 2023,
-            "files": entries,
-        },
-    )
+    manifest: dict[str, Any] = {"reporting_year": 2023, "files": entries}
+    if "reports" in previous_manifest:
+        manifest["reports"] = previous_manifest["reports"]
+    write_manifest(manifest_path, manifest)
 
     for source in SOURCES:
         entry = entries[source["id"]]
         print(f"{entry['filename']}: {entry['bytes']} bytes, sha256 {entry['sha256']}")
+
+
+def collect_reports(register: Path, output_dir: Path, refresh: bool) -> None:
+    """Download report PDFs listed in the register to an ignored local folder."""
+    reports_dir = output_dir / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = output_dir / "manifest.json"
+    manifest = read_manifest(manifest_path)
+    entries: dict[str, Any] = manifest.get("reports", {})
+
+    with register.open(encoding="utf-8-sig", newline="") as source:
+        reports = list(csv.DictReader(source))
+
+    for report in reports:
+        rank = report["fortune_rank"]
+        destination = reports_dir / f"{rank}.pdf"
+        downloaded_at = entries.get(rank, {}).get("downloaded_at_utc")
+        try:
+            if refresh or not destination.exists():
+                download(report["report_url"], destination, validate_pdf)
+                downloaded_at = utc_now()
+            else:
+                validate_pdf(destination)
+        except (OSError, ValueError) as error:
+            print(f"skip {report['company_name']}: {error}")
+            continue
+        entries[rank] = {
+            "url": report["report_url"],
+            "filename": destination.name,
+            "downloaded_at_utc": downloaded_at,
+            "bytes": destination.stat().st_size,
+            "sha256": sha256_file(destination),
+        }
+        print(f"{report['company_name']}: {destination}")
+
+    manifest["reports"] = entries
+    write_manifest(manifest_path, manifest)
 
 
 def main() -> None:
@@ -154,8 +198,20 @@ def main() -> None:
         action="store_true",
         help="download fresh copies even if source files already exist",
     )
+    parser.add_argument(
+        "--reports",
+        action="store_true",
+        help="also download report PDFs listed in --register (kept out of Git)",
+    )
+    parser.add_argument(
+        "--register",
+        type=Path,
+        default=Path("data/inputs/pilot_reports.csv"),
+    )
     args = parser.parse_args()
     collect(args.output_dir, args.refresh)
+    if args.reports:
+        collect_reports(args.register, args.output_dir, args.refresh)
 
 
 if __name__ == "__main__":
