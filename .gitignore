@@ -8,3 +8,4 @@ data/raw/
 data/interim/
 data/annotations/
 data/cache/
+outputs/
