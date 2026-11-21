@@ -8,7 +8,7 @@ How can corporate climate-related claims be measured and compared with changes i
 
 ## Planned approach
 
-The project will begin with a pilot of three to five companies before expanding the sample.
+The pilot will begin with three to five companies selected from energy-related firms in the top 200 of the 2026 Fortune 500, which ranks U.S. companies by revenue. Eligible firms will be screened and ranked using the latest publicly available EPA GHGRP direct-emissions data. See the [research design](docs/research-design.md) for selection rules and the [coding rubric](codebook/rubric.md) for passage-level labels.
 
 1. Collect sustainability reports and extract climate-related passages.
 2. Develop a scoring rubric and compare model and dictionary-based scores with independently hand-labeled passages.
@@ -17,3 +17,5 @@ The project will begin with a pilot of three to five companies before expanding 
 ## Scope and limitations
 
 The [EPA Greenhouse Gas Reporting Program](https://www.epa.gov/ghgreporting/what-ghgrp) reports direct emissions at the facility level and does not capture all emissions associated with a parent company. Differences between a company's claims and these emissions are signals for further investigation, not conclusive evidence of greenwashing.
+
+No reports have been collected and no scores or empirical results have been produced yet.
