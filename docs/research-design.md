@@ -1,6 +1,6 @@
 # Pilot research design
 
-**Status:** Design stage. The sample has not yet been assembled, and no empirical results are available.
+**Status:** Initial RY2023 facility screen complete for all five Fortune top-50 Energy candidates. Report-period candidates are registered; human claim annotation and claims-versus-emissions analysis have not started.
 
 ## Question
 
@@ -28,6 +28,20 @@ The Fortune Explorer supplies a small revenue-based pilot frame, not an emission
 
 The primary selection metric is direct emissions at facilities with a sole, fully reported parent match. This conservative rule avoids allocating shared facility emissions using ownership percentages that may not represent emissions responsibility, but it can understate firms with joint ownership. Report the separate multi-parent and partial-ownership facility coverage and do not combine supplier-reported potential emissions with facility direct emissions.
 
+## Initial screen
+
+The source-reviewed crosswalk and downloaded EPA RY2023 files produce the following descriptive screen. Results are facility emissions for records meeting the stated sole-parent rule, not complete company inventories. Matched facilities that fail that rule remain unallocated; neither group establishes whether a climate claim is misleading.
+
+| Fortune rank | Company | Sole-parent facilities | Sole-parent direct emissions (mtCO2e) | Matched but unallocated facilities |
+|---:|---|---:|---:|---:|
+| 9 | Exxon Mobil Holdings | 15 | 31,058,673 | 20 |
+| 30 | Marathon Petroleum | 21 | 28,273,366 | 5 |
+| 40 | Valero Energy | 26 | 23,500,508 | 1 |
+| 29 | Phillips 66 | 16 | 22,312,816 | 47 |
+| 21 | Chevron | 9 | 13,717,367 | 23 |
+
+These are all five Energy candidates in the chosen Fortune frame, not a random or representative sample. Company report candidates and the evidence for aligning them to 2023 are in `data/inputs/pilot_reports.csv`. In particular, EPA lists both CHEVRON USA INC (100%) and PETROBRAS AMERICA INC (0%) for facility 1005903, so that facility remains unallocated under the exactly-one-reported-parent rule.
+
 ## Interpretation limits
 
 GHGRP captures reported emissions from covered facilities; it is not a complete corporate greenhouse-gas inventory. It does not by itself measure all operational sources, purchased electricity, value-chain emissions, or the accuracy of public claims. A rise or fall in reported emissions alone cannot establish greenwashing. Treat a gap between claims and measured emissions as a signal for investigation, and present coverage, missing matches, organizational changes, and reporting boundaries alongside the comparison.
@@ -40,6 +54,8 @@ GHGRP captures reported emissions from covered facilities; it is not a complete 
 4. A firm-level claims-versus-emissions visualization with the matching and coverage caveats visible.
 
 Defer panel regressions until the pilot establishes adequate firm-year coverage and a defensible measure. Do not treat the initial three-to-five-firm pilot as enough observations for causal claims.
+
+The blank annotation schema is `data/templates/annotation_template.csv`. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
 
 ## Public sources
 

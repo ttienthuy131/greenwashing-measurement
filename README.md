@@ -20,4 +20,4 @@ The [EPA Greenhouse Gas Reporting Program](https://www.epa.gov/ghgreporting/what
 
 ## Data status
 
-Install the parser dependencies with `python -m pip install -r requirements.txt`, then run `python src/01_collect.py` and `python src/02_parse.py` to download, checksum, and screen the public EPA source files locally. Raw and interim files are excluded from Git. The EPA parent-company matches remain provisional; the report set is not collected, and no scores or empirical results have been produced.
+Install the parser dependencies with `python -m pip install -r requirements.txt`, then run `python src/01_collect.py` and `python src/02_parse.py` to download, checksum, and screen the public EPA source files locally. Raw and interim files are excluded from Git. The Fortune-to-EPA parent-name crosswalk has been source-reviewed, and the five candidate companies have reports aligned to RY2023 listed in `data/inputs/pilot_reports.csv`. The descriptive screen is not a corporate emissions inventory or a greenwashing finding. Reports have not been collected, and human annotation has not started.

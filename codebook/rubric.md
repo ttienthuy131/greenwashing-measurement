@@ -9,7 +9,7 @@ Code what a passage claims and how well the passage supports or bounds that clai
 
 ## Annotation unit
 
-Annotate one claim at a time. Include enough adjacent text to identify the subject, reporting period, boundary, and any qualification. Record the company, report title, covered year, publication year, page or section, exact passage, and annotator ID. If context is insufficient, mark the relevant item `unclear` rather than inferring it.
+Annotate one claim at a time. Include enough adjacent text to identify the subject, reporting period, boundary, and any qualification. Record the company, report title, covered year, publication year, page or section, passage locator, and annotator ID. If context is insufficient, mark the relevant item `unclear` rather than inferring it. Keep report PDFs and copied report text out of Git unless retention and sharing rights have been checked.
 
 ## Label A: claim status and strength
 

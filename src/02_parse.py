@@ -286,7 +286,11 @@ def parse(data_dir: Path, input_dir: Path, output_dir: Path) -> None:
                     "included_in_primary_screen": (
                         attribution == "sole_100pct_parent"
                     ),
-                    "review_status": "provisional_parent_match",
+                    "review_status": (
+                        "confirmed_parent_match"
+                        if mapping["review_status"] == "confirmed"
+                        else "provisional_parent_match"
+                    ),
                 }
 
         primary_rows = [
@@ -334,7 +338,14 @@ def parse(data_dir: Path, input_dir: Path, output_dir: Path) -> None:
                 "unallocated_gross_emissions_mtco2e": sum(
                     row["direct_emissions_mtco2e"] or 0 for row in unallocated_rows
                 ),
-                "result_status": "provisional; verify corporate crosswalk",
+                "result_status": (
+                    "reviewed parent-name crosswalk; descriptive GHGRP screen"
+                    if all(
+                        mapping["review_status"] == "confirmed"
+                        for mapping in mappings
+                    )
+                    else "provisional parent-name crosswalk; descriptive GHGRP screen"
+                ),
             }
         )
         facility_rows.extend(matched_facilities.values())
@@ -371,7 +382,10 @@ def parse(data_dir: Path, input_dir: Path, output_dir: Path) -> None:
         summary_rows,
     )
 
-    print("Provisional crosswalk results; verify parent-company matches before analysis.")
+    print(
+        "Descriptive GHGRP screen; parent-name matches follow the reviewed crosswalk. "
+        "Results are not corporate emissions totals or greenwashing findings."
+    )
     for row in summary_rows:
         emissions = row["sole_100pct_emissions_mtco2e"]
         print(
