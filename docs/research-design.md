@@ -13,7 +13,7 @@ Use the 2026 Fortune 500 as the company universe. It ranks U.S. companies by rev
 1. Start with ranks 1–200.
 2. Screen for companies whose core operations include oil and gas production, integrated oil and gas, petroleum refining, natural gas or petroleum pipelines, or electric power generation and utilities. Record the evidence and classification for each included company. Do not include an energy-equipment or financial company solely because it serves or invests in the energy sector.
 3. Match the screened companies to EPA Greenhouse Gas Reporting Program (GHGRP) direct-emitter facilities using the EPA reported-parent-company file. Keep a documented alias and ownership crosswalk; do not match on company-name similarity alone.
-4. For each firm and reporting year, calculate ownership-attributable direct emissions by multiplying each matched facility's direct emissions by the EPA-reported ownership percentage. Deduplicate facility-parent-year rows. Rank matched firms by this measure for reporting year 2023. Retain the gross emissions at matched facilities as a separate descriptive measure.
+4. For each firm and reporting year, identify facilities whose sole reported highest-level U.S. parent matches the firm. Deduplicate facility-year records and rank firms by those facilities' direct emissions in reporting year 2023. Do not multiply emissions by EPA-reported ownership percentages: EPA notes that these percentages do not necessarily represent each parent's share of facility emissions. Keep multi-parent facilities in a separate matched-but-unallocated file for sensitivity analysis.
 5. Select the five highest-ranked firms with a usable climate or sustainability report whose stated period can be aligned with reporting year 2023. If a candidate cannot be matched or has no usable, alignable report, record the reason and move to the next firm.
 6. Report the full screening and attrition counts. Describe the pilot as a feasibility sample of large emitters, not as representative of all U.S. firms or energy companies.
 
@@ -26,7 +26,7 @@ The Fortune 500 supplies a revenue-based company frame, not an emissions ranking
 - **Firm-year:** Aggregate matched facility observations to a firm-year only after deduplicating facilities and resolving parent-company ownership.
 - **Alignment:** Start with report periods that overlap the available EPA years. Record publication year separately from the report's covered fiscal year. Do not compare unlike periods without labeling the lag.
 
-The primary selection metric is ownership-attributable emissions, not operational-control emissions. State this distinction and retain both attributable and gross figures so readers can see how the attribution choice affects results. EPA's reported parent-company file includes parent-company names and ownership percentages. Do not combine supplier-reported potential emissions with facility direct emissions.
+The primary selection metric is direct emissions at facilities with a sole matched parent. This conservative rule avoids allocating multi-parent facility emissions using a percentage that EPA says may not represent emissions responsibility, but it can understate firms with joint ownership. Report the separate multi-parent facility coverage and do not combine supplier-reported potential emissions with facility direct emissions.
 
 ## Interpretation limits
 
@@ -43,7 +43,7 @@ Defer panel regressions until the pilot establishes adequate firm-year coverage 
 
 ## Public sources
 
-- [Fortune 500 ranking](https://fortune.com/ranking/fortune500/): revenue-ranked U.S. company universe. Record the edition and rank used.
+- [Fortune 500 ranking](https://fortune.com/ranking/fortune500/): revenue-ranked U.S. company universe. Record the edition and rank used. Fortune's public page links to a purchase option for the full data; do not scrape the site. See [data source notes](data-sources.md).
 - [EPA GHGRP reported data](https://www.epa.gov/ghgreporting/ghgrp-reported-data): descriptions of the program and reported data.
 - [EPA GHGRP data sets](https://www.epa.gov/ghgreporting/data-sets): downloadable data, including the reported parent-company file.
 - [SEC EDGAR company facts](https://www.sec.gov/edgar/sec-api-documentation): possible source for later firm financial controls; not required for pilot selection.

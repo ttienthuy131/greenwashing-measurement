@@ -18,4 +18,6 @@ The pilot will begin with three to five companies selected from energy-related f
 
 The [EPA Greenhouse Gas Reporting Program](https://www.epa.gov/ghgreporting/what-ghgrp) reports direct emissions at the facility level and does not capture all emissions associated with a parent company. Differences between a company's claims and these emissions are signals for further investigation, not conclusive evidence of greenwashing.
 
-No reports have been collected and no scores or empirical results have been produced yet.
+## Data status
+
+Run `python src/01_collect.py` to download and checksum the public EPA source files locally. Raw files are excluded from Git. The company sample and report set are not assembled, and no scores or empirical results have been produced.
