@@ -15,7 +15,7 @@
 - The downloader records the source URL, retrieval time, byte count, and SHA-256 digest in `data/raw/manifest.json`.
 - Run `python src/02_parse.py` after installing `requirements.txt` to create the RY2023 screen and the retrospective RY2019-2023 trend table under ignored `data/interim/`. Review each year's ownership and facility coverage before interpreting the trend table at company level.
 - Raw downloads are excluded from Git. Keep derived tables small and document their generation from the public sources.
-- Do not collect or commit sustainability-report PDFs. Store report URLs, retrieval dates, covered fiscal years, and page references; check rights before retaining report text.
+- Do not commit sustainability-report PDFs or report text. `python src/01_collect.py --reports` saves PDFs from the register to ignored `data/raw/reports/{fortune_rank}.pdf`. Several company sites block scripted downloads; in that case save the PDF manually under the same name. Store report URLs, retrieval dates, covered fiscal years, and page references; check rights before retaining report text.
 - Do not include supplier-reported potential emissions in direct facility-emissions totals.
 - Manual parent-company matching must retain the EPA-reported name, the normalized candidate name, the evidence for the match, and a reviewer decision.
 - Official report-page candidates and period-alignment notes are listed in `data/inputs/pilot_reports.csv`; no report PDFs are included in the repository.

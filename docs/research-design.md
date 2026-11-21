@@ -1,6 +1,6 @@
 # Pilot research design
 
-**Status:** Initial RY2023 facility screen and retrospective 2019-2023 trend screen generated for all five Fortune top-50 Energy candidates. Parent-name aliases are documented; year-specific ownership and coverage still need review. Human claim annotation and claims-versus-emissions analysis have not started.
+**Status:** Initial RY2023 facility screen and retrospective 2019-2023 trend screen generated for all five Fortune top-50 Energy candidates. Parent-name aliases are documented; year-specific ownership and coverage still need review. The passage extraction, scoring, validation, and merge code is in place and tested with synthetic examples. Human claim annotation has not started, so no validation or claims-versus-emissions results are reported.
 
 ## Question
 
@@ -57,7 +57,7 @@ GHGRP captures reported emissions from covered facilities; it is not a complete 
 
 Defer panel regressions until the pilot establishes adequate firm-year coverage and a defensible measure. Do not treat the initial three-to-five-firm pilot as enough observations for causal claims.
 
-The blank annotation schema is `data/templates/annotation_template.csv`. Make a working copy under ignored `data/annotations/` so passage text and human labels stay local during annotation. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. After the historical crosswalk review and human annotation, the dictionary/LLM comparison and claims-versus-emissions visualization can be completed. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
+The blank annotation schema is `data/templates/annotation_template.csv`. Make a working copy under ignored `data/annotations/` so passage text and human labels stay local during annotation. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. Fill `passage_id` from `data/interim/passages.jsonl` so `src/05_validate.py` can join human and machine labels. After the historical crosswalk review and human annotation, run `src/05_validate.py` and `src/06_merge.py` to produce the dictionary/LLM comparison and the claims-versus-emissions figure. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
 
 ## Public sources
 

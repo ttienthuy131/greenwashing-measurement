@@ -1,2 +1,4 @@
 openpyxl>=3.1,<4
 pyxlsb>=1.0.10,<2
+pypdf>=4,<7
+matplotlib>=3.7,<4
