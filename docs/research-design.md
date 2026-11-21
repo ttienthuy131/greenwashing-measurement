@@ -57,7 +57,7 @@ GHGRP captures reported emissions from covered facilities; it is not a complete 
 
 Defer panel regressions until the pilot establishes adequate firm-year coverage and a defensible measure. Do not treat the initial three-to-five-firm pilot as enough observations for causal claims.
 
-The blank annotation schema is `data/templates/annotation_template.csv`. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. After the historical crosswalk review and human annotation, the dictionary/LLM comparison and claims-versus-emissions visualization can be completed. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
+The blank annotation schema is `data/templates/annotation_template.csv`. Make a working copy under ignored `data/annotations/` so passage text and human labels stay local during annotation. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. After the historical crosswalk review and human annotation, the dictionary/LLM comparison and claims-versus-emissions visualization can be completed. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
 
 ## Public sources
 
