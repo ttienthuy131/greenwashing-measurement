@@ -13,7 +13,7 @@
 ## Collection notes
 
 - The downloader records the source URL, retrieval time, byte count, and SHA-256 digest in `data/raw/manifest.json`.
-- Run `python src/02_parse.py` after installing `requirements.txt` to create local EPA match tables under ignored `data/interim/`.
+- Run `python src/02_parse.py` after installing `requirements.txt` to create the RY2023 screen and the retrospective RY2019-2023 trend table under ignored `data/interim/`. Review each year's ownership and facility coverage before interpreting the trend table at company level.
 - Raw downloads are excluded from Git. Keep derived tables small and document their generation from the public sources.
 - Do not collect or commit sustainability-report PDFs. Store report URLs, retrieval dates, covered fiscal years, and page references; check rights before retaining report text.
 - Do not include supplier-reported potential emissions in direct facility-emissions totals.

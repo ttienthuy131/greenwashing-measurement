@@ -17,6 +17,8 @@ from pyxlsb import open_workbook
 
 REPORTING_YEAR = 2023
 DIRECT_EMITTER_WORKBOOK = "ghgp_data_2023.xlsx"
+MULTIYEAR_DIRECT_EMITTER_WORKBOOK = "ghgp_data_by_year_2023.xlsx"
+TREND_START_YEAR = 2019
 
 
 def normalize_name(value: Any) -> str:
@@ -148,14 +150,83 @@ def read_direct_emissions(archive_path: Path) -> dict[str, dict[str, Any]]:
         workbook.close()
 
 
-def read_parent_companies(path: Path) -> dict[str, list[dict[str, Any]]]:
+def read_multi_year_direct_emissions(
+    archive_path: Path,
+) -> dict[str, dict[int, float | None]]:
+    with zipfile.ZipFile(archive_path) as archive:
+        workbook_bytes = archive.read(MULTIYEAR_DIRECT_EMITTER_WORKBOOK)
+
+    workbook = openpyxl.load_workbook(
+        io.BytesIO(workbook_bytes),
+        read_only=True,
+        data_only=True,
+    )
+    try:
+        sheet = workbook["Direct Point Emitters"]
+        header_row_number = None
+        headers: list[Any] = []
+        for row_number, row in enumerate(
+            sheet.iter_rows(min_row=1, max_row=10, values_only=True),
+            start=1,
+        ):
+            normalized = {normalize_name(value): index for index, value in enumerate(row)}
+            if "FACILITY ID" in normalized:
+                header_row_number = row_number
+                headers = list(row)
+                break
+
+        if header_row_number is None:
+            raise ValueError("Could not locate facility headers in EPA multi-year data")
+
+        column = {
+            normalize_name(value): index
+            for index, value in enumerate(headers)
+            if value is not None
+        }
+        year_columns = {
+            int(name[:4]): index
+            for name, index in column.items()
+            if name[:4].isdigit()
+            and name.endswith("TOTAL REPORTED DIRECT EMISSIONS")
+            and TREND_START_YEAR <= int(name[:4]) <= REPORTING_YEAR
+        }
+        if not year_columns:
+            raise ValueError("Could not locate EPA multi-year emissions columns")
+
+        emissions: dict[str, dict[int, float | None]] = {}
+        for row in sheet.iter_rows(
+            min_row=header_row_number + 1,
+            values_only=True,
+        ):
+            facility_id = normalize_facility_id(row[column["FACILITY ID"]])
+            if not facility_id:
+                continue
+            if facility_id in emissions:
+                raise ValueError(f"Duplicate EPA multi-year facility ID {facility_id}")
+            emissions[facility_id] = {
+                year: (
+                    float(row[index])
+                    if row[index] is not None
+                    else None
+                )
+                for year, index in year_columns.items()
+            }
+        return emissions
+    finally:
+        workbook.close()
+
+
+def read_parent_companies(
+    path: Path,
+    reporting_year: int = REPORTING_YEAR,
+) -> dict[str, list[dict[str, Any]]]:
     parent_rows: dict[str, list[dict[str, Any]]] = defaultdict(list)
 
     with open_workbook(str(path)) as workbook:
-        if str(REPORTING_YEAR) not in workbook.sheets:
-            raise ValueError(f"No reporting-year sheet {REPORTING_YEAR} in {path}")
+        if str(reporting_year) not in workbook.sheets:
+            raise ValueError(f"No reporting-year sheet {reporting_year} in {path}")
 
-        with workbook.get_sheet(str(REPORTING_YEAR)) as sheet:
+        with workbook.get_sheet(str(reporting_year)) as sheet:
             header: dict[str, int] | None = None
             for row_number, row in enumerate(sheet.rows(sparse=True)):
                 values = [cell.v for cell in row[:16]]
@@ -181,7 +252,7 @@ def read_parent_companies(path: Path) -> dict[str, list[dict[str, Any]]]:
                 if not facility_id:
                     continue
                 reported_year = values[header["REPORTING YEAR"]]
-                if int(float(reported_year)) != REPORTING_YEAR:
+                if int(float(reported_year)) != reporting_year:
                     continue
 
                 parent_name = values[header["PARENT COMPANY NAME"]]
@@ -202,6 +273,84 @@ def read_parent_companies(path: Path) -> dict[str, list[dict[str, Any]]]:
     return dict(parent_rows)
 
 
+def summarize_trends(
+    candidates: list[dict[str, str]],
+    crosswalk_by_rank: dict[int, list[dict[str, str]]],
+    parent_company_path: Path,
+    emissions_by_facility: dict[str, dict[int, float | None]],
+) -> list[dict[str, Any]]:
+    trend_rows: list[dict[str, Any]] = []
+    for reporting_year in range(TREND_START_YEAR, REPORTING_YEAR + 1):
+        parent_companies = read_parent_companies(
+            parent_company_path,
+            reporting_year,
+        )
+        for candidate in candidates:
+            rank = int(candidate["fortune_rank"])
+            mappings = crosswalk_by_rank[rank]
+            matched_facilities: dict[str, dict[str, Any]] = {}
+            for facility_id, owners in parent_companies.items():
+                emissions = emissions_by_facility.get(facility_id, {}).get(
+                    reporting_year
+                )
+                if emissions is None:
+                    continue
+                for mapping in mappings:
+                    matched_owners = [
+                        owner
+                        for owner in owners
+                        if normalize_name(owner["parent_company_name"])
+                        == normalize_name(mapping["epa_parent_company_name"])
+                    ]
+                    if not matched_owners:
+                        continue
+                    attribution = classify_attribution(
+                        owners,
+                        mapping["epa_parent_company_name"],
+                    )
+                    if facility_id in matched_facilities:
+                        raise ValueError(
+                            f"Duplicate company/facility crosswalk for "
+                            f"{candidate['company_name']} / {facility_id} / "
+                            f"{reporting_year}"
+                        )
+                    matched_facilities[facility_id] = {
+                        "emissions": emissions,
+                        "included": attribution == "sole_100pct_parent",
+                    }
+
+            primary_rows = [
+                row for row in matched_facilities.values() if row["included"]
+            ]
+            unallocated_rows = [
+                row for row in matched_facilities.values() if not row["included"]
+            ]
+            trend_rows.append(
+                {
+                    "fortune_rank": rank,
+                    "fortune_company_name": candidate["company_name"],
+                    "reporting_year": reporting_year,
+                    "epa_parent_company_names": "; ".join(
+                        mapping["epa_parent_company_name"] for mapping in mappings
+                    ),
+                    "matched_facility_count_with_emissions": len(matched_facilities),
+                    "sole_100pct_facility_count": len(primary_rows),
+                    "sole_100pct_emissions_mtco2e": sum(
+                        row["emissions"] for row in primary_rows
+                    ),
+                    "unallocated_facility_count": len(unallocated_rows),
+                    "unallocated_gross_emissions_mtco2e": sum(
+                        row["emissions"] for row in unallocated_rows
+                    ),
+                    "crosswalk_status": (
+                        "parent-group names applied retrospectively; "
+                        "review period-specific coverage and ownership"
+                    ),
+                }
+            )
+    return trend_rows
+
+
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as destination:
@@ -217,6 +366,9 @@ def parse(data_dir: Path, input_dir: Path, output_dir: Path) -> None:
         data_dir / "2023_data_summary_spreadsheets.zip"
     )
     parent_companies = read_parent_companies(data_dir / "ghgp_data_parent_company.xlsb")
+    multi_year_emissions = read_multi_year_direct_emissions(
+        data_dir / "2023_data_summary_spreadsheets.zip"
+    )
 
     candidates_by_rank = {
         int(row["fortune_rank"]): row for row in candidates
@@ -380,6 +532,17 @@ def parse(data_dir: Path, input_dir: Path, output_dir: Path) -> None:
         output_dir / "fortune_top50_energy_summary_ry2023.csv",
         list(summary_rows[0]),
         summary_rows,
+    )
+    trend_rows = summarize_trends(
+        candidates,
+        crosswalk_by_rank,
+        data_dir / "ghgp_data_parent_company.xlsb",
+        multi_year_emissions,
+    )
+    write_csv(
+        output_dir / "fortune_top50_energy_trends_ry2019_2023.csv",
+        list(trend_rows[0]),
+        trend_rows,
     )
 
     print(

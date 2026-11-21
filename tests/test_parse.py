@@ -39,6 +39,16 @@ class AttributionTests(unittest.TestCase):
             "unallocated_shared_or_partial",
         )
 
+    def test_zero_percent_second_parent_still_prevents_allocation(self):
+        owners = [
+            {"parent_company_name": "CHEVRON USA INC", "ownership_percent": 100.0},
+            {"parent_company_name": "OTHER PARENT", "ownership_percent": 0.0},
+        ]
+        self.assertEqual(
+            parse_ghgrp.classify_attribution(owners, "CHEVRON USA INC"),
+            "unallocated_shared_or_partial",
+        )
+
     def test_unrelated_parent_does_not_match(self):
         owners = [
             {"parent_company_name": "OTHER PARENT", "ownership_percent": 100.0}

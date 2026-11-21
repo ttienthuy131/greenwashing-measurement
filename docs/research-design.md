@@ -1,6 +1,6 @@
 # Pilot research design
 
-**Status:** Initial RY2023 facility screen complete for all five Fortune top-50 Energy candidates. Report-period candidates are registered; human claim annotation and claims-versus-emissions analysis have not started.
+**Status:** Initial RY2023 facility screen and retrospective 2019-2023 trend screen generated for all five Fortune top-50 Energy candidates. Parent-name aliases are documented; year-specific ownership and coverage still need review. Human claim annotation and claims-versus-emissions analysis have not started.
 
 ## Question
 
@@ -42,6 +42,8 @@ The source-reviewed crosswalk and downloaded EPA RY2023 files produce the follow
 
 These are all five Energy candidates in the chosen Fortune frame, not a random or representative sample. Company report candidates and the evidence for aligning them to 2023 are in `data/inputs/pilot_reports.csv`. In particular, EPA lists both CHEVRON USA INC (100%) and PETROBRAS AMERICA INC (0%) for facility 1005903, so that facility remains unallocated under the exactly-one-reported-parent rule.
 
+The parser also creates `data/interim/fortune_top50_energy_trends_ry2019_2023.csv` from EPA's multi-year facility table. It applies the documented parent-group names to each year's EPA ownership records; review year-specific ownership and coverage before interpreting the series as company trends. The facility counts can change as reporters, ownership records, and emissions coverage change.
+
 ## Interpretation limits
 
 GHGRP captures reported emissions from covered facilities; it is not a complete corporate greenhouse-gas inventory. It does not by itself measure all operational sources, purchased electricity, value-chain emissions, or the accuracy of public claims. A rise or fall in reported emissions alone cannot establish greenwashing. Treat a gap between claims and measured emissions as a signal for investigation, and present coverage, missing matches, organizational changes, and reporting boundaries alongside the comparison.
@@ -55,7 +57,7 @@ GHGRP captures reported emissions from covered facilities; it is not a complete 
 
 Defer panel regressions until the pilot establishes adequate firm-year coverage and a defensible measure. Do not treat the initial three-to-five-firm pilot as enough observations for causal claims.
 
-The blank annotation schema is `data/templates/annotation_template.csv`. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
+The blank annotation schema is `data/templates/annotation_template.csv`. Human coders must complete it using the rubric; do not fill human-label fields with model-generated values. After the historical crosswalk review and human annotation, the dictionary/LLM comparison and claims-versus-emissions visualization can be completed. Keep report PDFs and report text out of Git unless retention and sharing rights have been checked.
 
 ## Public sources
 
