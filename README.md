@@ -8,7 +8,7 @@ How can corporate climate-related claims be measured and compared with changes i
 
 ## Planned approach
 
-The pilot will begin with three to five companies selected from energy-related firms in the top 200 of the 2026 Fortune 500, which ranks U.S. companies by revenue. Eligible firms will be screened and ranked using the latest publicly available EPA GHGRP direct-emissions data. See the [research design](docs/research-design.md) for selection rules and the [coding rubric](codebook/rubric.md) for passage-level labels.
+The pilot will begin with three to five companies from the five Energy-sector candidates in Fortune's publicly accessible top-50 Explorer. Eligible firms will be screened using EPA GHGRP direct-emissions data. See the [research design](docs/research-design.md) for selection rules and the [coding rubric](codebook/rubric.md) for passage-level labels.
 
 1. Collect sustainability reports and extract climate-related passages.
 2. Develop a scoring rubric and compare model and dictionary-based scores with independently hand-labeled passages.
@@ -20,4 +20,4 @@ The [EPA Greenhouse Gas Reporting Program](https://www.epa.gov/ghgreporting/what
 
 ## Data status
 
-Run `python src/01_collect.py` to download and checksum the public EPA source files locally. Raw files are excluded from Git. The company sample and report set are not assembled, and no scores or empirical results have been produced.
+Install the parser dependencies with `python -m pip install -r requirements.txt`, then run `python src/01_collect.py` and `python src/02_parse.py` to download, checksum, and screen the public EPA source files locally. Raw and interim files are excluded from Git. The EPA parent-company matches remain provisional; the report set is not collected, and no scores or empirical results have been produced.
